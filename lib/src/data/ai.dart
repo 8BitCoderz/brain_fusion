@@ -17,6 +17,10 @@ class CancellationToken {
     _isCanceled = true;
   }
 
+  void reset() {
+    _isCanceled = false;
+  }
+
   bool get isCanceled => _isCanceled;
 }
 
