@@ -1,7 +1,6 @@
-import 'dart:convert';
-
 /// The [origin] variable holds the decoded value of the base64-encoded URL of the server where the API is hosted.
-final origin = utf8.decode(base64.decode('aHR0cHM6Ly9mdXNpb25icmFpbi5haQ=='));
+// final origin = utf8.decode(base64.decode('aHR0cHM6Ly9mdXNpb25icmFpbi5haQ=='));
+final origin = 'https://api.fusionbrain.ai';
 
 /// The [referer] variable holds the URL of the page that refers the request to the server. Here, it's the URL of the diffusion page of the server.
 final referer = '$origin/en/diffusion';
