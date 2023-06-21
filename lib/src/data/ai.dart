@@ -10,6 +10,16 @@ import '../api/status.dart';
 import 'enums.dart';
 import 'webkit_generator.dart';
 
+import 'dart:io';
+import 'package:http/io_client.dart';
+
+http.Client createHttpClientWithDisabledCertificateCheck() {
+  final httpClient = HttpClient()
+    ..badCertificateCallback =
+        ((X509Certificate cert, String host, int port) => true);
+  return IOClient(httpClient);
+}
+
 class CancellationToken {
   bool _isCanceled = false;
 
@@ -42,7 +52,8 @@ class AI {
     CancellationToken cancellationToken,
   ) async {
     try {
-      _client = http.Client();
+      // _client = http.Client();
+      _client = createHttpClientWithDisabledCertificateCheck();
       _checkQueue = CheckQueue(client: _client);
 
       final bool checker = await _checkQueue.checkQueue();
