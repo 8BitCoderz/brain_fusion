@@ -3,7 +3,7 @@ description: Fusion Brain AI is a new AI art generation tool that can create ama
 homepage: https://github.com/8BitCoderz/brain_fusion/
 repository: https://github.com/8BitCoderz/brain_fusion/
 issue_tracker: https://github.com/8BitCoderz/brain_fusion/issues
-version: 0.1.1
+version: 0.1.2
 
 environment:
   sdk: '>=2.19.5 <3.0.0'
