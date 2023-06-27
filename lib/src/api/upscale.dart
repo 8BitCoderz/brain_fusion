@@ -35,7 +35,7 @@ class UpScale {
       'x-client-version': 'web',
     };
 
-    if (imageData == null || imageData.isEmpty) {
+    if (imageData.isEmpty) {
       print("Image data is empty");
       return Uint8List(0); // Return an empty Uint8List instead of null
     }
@@ -81,6 +81,84 @@ class UpScale {
       print("Error: ${response.statusCode} ${response.reasonPhrase}");
       print("Response body: ${await response.stream.bytesToString()}");
       return Uint8List(0); // Return an empty Uint8List instead of null
+    }
+  }
+}
+
+class UpScaleV2 {
+  Future<String> getImageURL(Uint8List imageData) async {
+    const String apiUrl = 'https://api.imgbb.com/1/upload';
+    const String apiKey = '9dec83abb752cc47c55eaaffedcd08d2';
+
+    if (imageData.isEmpty) {
+      print("Image data is empty");
+      return ''; // Return an empty string instead of null
+    }
+
+    String base64Image = base64Encode(imageData);
+    var response = await http.post(
+      Uri.parse(apiUrl),
+      body: {
+        'key': apiKey,
+        'image': base64Image,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      var jsonResponse = jsonDecode(response.body);
+      return jsonResponse['data']['url'];
+    } else {
+      print("Error: ${response.statusCode} ${response.reasonPhrase}");
+      print("Response body: ${response.body}");
+      return ''; // Return an empty string instead of null
+    }
+  }
+
+  Future<String> superUpscaleIMG(
+      int scale, bool isFaceEnhance, String imageURL) async {
+    final String url =
+        'https://replicate.com/api/models/daanelson/real-esrgan-a100/versions/499940604f95b416c3939423df5c64a5c95cfd32b464d755dacfe2192a2de7ef/predictions';
+    final Map<String, String> headers = {
+      'authority': 'replicate.com',
+      'accept': 'application/json',
+      'accept-language': 'en-US,en;q=0.9',
+      'content-type': 'application/json',
+      'origin': 'https://replicate.com',
+      'referer': 'https://replicate.com/daanelson/real-esrgan-a100',
+      'sec-ch-ua': secChUa,
+      'sec-ch-ua-mobile': '?0',
+      'sec-ch-ua-platform': '"macOS"',
+      'sec-fetch-dest': 'empty',
+      'sec-fetch-mode': 'cors',
+      'sec-fetch-site': 'same-origin',
+      'user-agent': userAgent,
+    };
+    final Map<String, dynamic> body = {
+      'inputs': {
+        'scale': scale,
+        'face_enhance': isFaceEnhance,
+        'image': imageURL
+      }
+    };
+
+    final response = await http.post(Uri.parse(url),
+        headers: headers, body: jsonEncode(body));
+    final Map<String, dynamic> data = jsonDecode(response.body);
+
+    final String predictionId = data['uuid'];
+    final String statusCheckUrl = '$url/$predictionId';
+
+    while (true) {
+      final statusResponse =
+          await http.get(Uri.parse(statusCheckUrl), headers: headers);
+      final Map<String, dynamic> statusData = jsonDecode(statusResponse.body);
+
+      if (statusData['prediction']['status'] == 'succeeded') {
+        return statusData['prediction']['output'];
+      }
+
+      await Future.delayed(Duration(
+          seconds: 1)); // wait for 1 seconds before checking the status again
     }
   }
 }
