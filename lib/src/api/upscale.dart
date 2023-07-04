@@ -114,6 +114,20 @@ class UpScaleV2 {
     }
   }
 
+  Future<String> getImageURLV2(File imageFile) async {
+    var request = http.MultipartRequest(
+        'POST', Uri.parse('https://api.imgbb.com/1/upload'));
+    request.fields['key'] = '9dec83abb752cc47c55eaaffedcd08d2';
+    request.files
+        .add(await http.MultipartFile.fromPath('image', imageFile.path));
+    var res = await request.send();
+    final respStr = await res.stream.bytesToString();
+    var result = jsonDecode(respStr);
+    String displayUrl = result['data']['display_url'];
+    print(result['data']);
+    return displayUrl;
+  }
+
   Future<String> superUpscaleIMG(
       int scale, bool isFaceEnhance, String imageURL) async {
     final String url =
